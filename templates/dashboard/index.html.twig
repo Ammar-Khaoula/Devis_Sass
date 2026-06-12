@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+
+<div class="container mt-4">
+
+    <h1>Dashboard</h1>
+
+    <p>
+        Bienvenue :
+        <strong>{{ app.user.email }}</strong>
+    </p>
+
+    <hr>
+
+    <ul>
+        <li>
+            <a href="{{ path('app_dashboard') }}">
+                Dashboard
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ path('app_logout') }}">
+                Déconnexion
+            </a>
+        </li>
+    </ul>
+
+</div>
+
+{% endblock %}
