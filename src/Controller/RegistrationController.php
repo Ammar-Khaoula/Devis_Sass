@@ -37,12 +37,16 @@ class RegistrationController extends AbstractController
             //role user
             $user->setRoles(['ROLE_USER']);
 
+            $user->setCreatedAt(new \DateTimeImmutable());
+
             $entityManager->persist($user);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Bienvenue 👋 Votre compte a été créé avec succès !');
+            $this->addFlash(
+                'success',
+                'Bienvenue 👋 Votre compte a été créé avec succès !');
 
-            $userAuthenticator->authenticateUser(
+            return $userAuthenticator->authenticateUser(
             $user,
             $authenticator,
             $request

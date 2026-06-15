@@ -21,6 +21,11 @@ class AppFixtures extends Fixture
 
         $user = new User();
         $user->setEmail('test@saas.com');
+        $user->setFirstname('Test');
+        $user->setLastname('User');
+        $user->setCountry('FR');
+        $user->setCreatedAt(new \DateTimeImmutable());
+
         $user->setRoles(['ROLE_USER']);
 
         $user->setPassword(
