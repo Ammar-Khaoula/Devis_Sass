@@ -1,34 +1,96 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Tableau de bord - DevisPro{% endblock %}
 
 {% block body %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="{{ path('app_dashboard') }}">
+            <i class="bi bi-file-earmark-text-fill"></i> DevisPro
+        </a>
+        <button class="navbar-expand navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-white small d-none d-md-inline">
+                    <i class="bi bi-person-circle"></i> {{ app.user.firstname }} {{ app.user.lastname }}
+                </span>
+                <a href="{{ path('app_logout') }}" class="btn btn-sm btn-outline-light">
+                    <i class="bi bi-box-arrow-right"></i> Déconnexion
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
 
-<div class="container mt-4">
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 fw-bold text-dark">Tableau de bord</h1>
+            <p class="text-muted">Ravi de vous revoir, {{ app.user.firstname }}. Voici l'état actuel de votre activité.</p>
+        </div>
+    </div>
 
-    <h1>Dashboard</h1>
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm rounded-3 bg-white h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="avatar bg-primary bg-opacity-10 text-primary rounded p-3 d-inline-flex">
+                            <i class="bi bi-people-fill fs-4"></i>
+                        </div>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">Actifs</span>
+                    </div>
+                    <h6 class="text-muted text-uppercase fs-7 fw-bold mb-1">Mes Clients</h6>
+                    <h2 class="fw-bold text-dark mb-0">{{ total_customers }}</h2>
+                </div>
+            </div>
+        </div>
 
-    <p>
-        Bienvenue :
-        <strong>{{ app.user.email }}</strong>
-    </p>
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm rounded-3 bg-white h-100 opacity-75">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="avatar bg-warning bg-opacity-10 text-warning rounded p-3 d-inline-flex">
+                            <i class="bi bi-file-earmark-text fs-4"></i>
+                        </div>
+                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill">Prochainement</span>
+                    </div>
+                    <h6 class="text-muted text-uppercase fs-7 fw-bold mb-1">Mes Devis</h6>
+                    <h2 class="fw-bold text-dark mb-0">0</h2>
+                </div>
+            </div>
+        </div>
 
-    <hr>
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm rounded-3 bg-white h-100 opacity-75">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="avatar bg-success bg-opacity-10 text-success rounded p-3 d-inline-flex">
+                            <i class="bi bi-currency-euro fs-4"></i>
+                        </div>
+                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill">Prochainement</span>
+                    </div>
+                    <h6 class="text-muted text-uppercase fs-7 fw-bold mb-1">Factures Encaissées</h6>
+                    <h2 class="fw-bold text-dark mb-0">0,00 €</h2>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <ul>
-        <li>
-            <a href="{{ path('app_dashboard') }}">
-                Dashboard
-            </a>
-        </li>
-
-        <li>
-            <a href="{{ path('app_logout') }}">
-                Déconnexion
-            </a>
-        </li>
-    </ul>
-
+    <div class="card border-0 shadow-sm rounded-3 p-3 p-md-4 bg-white">
+        <div class="card-body">
+            <h5 class="fw-bold text-dark mb-3">Actions rapides</h5>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{{ path('app_customer_index') }}" class="btn btn-outline-primary d-inline-flex align-items-center gap-2">
+                    <i class="bi bi-people"></i> Gérer mes clients
+                </a>
+                <a href="{{ path('app_customer_new') }}" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                    <i class="bi bi-person-plus"></i> Ajouter un nouveau client
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
-
 {% endblock %}

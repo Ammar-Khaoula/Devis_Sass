@@ -1,28 +1,64 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Log in!{% endblock %}
+{% block title %}Connexion - DevisPro{% endblock %}
 
 {% block body %}
-<form method="post">
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
+<div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100 py-5">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
 
-    {% if app.user %}
-        <div class="mb-3">
-            You are logged in as {{ app.user.userIdentifier }}, <a href="{{ logout_path() }}">Logout</a>
+            <div class="text-center mb-4">
+                <h2 class="fw-bold text-primary"><i class="bi bi-file-earmark-text-fill"></i> DevisPro</h2>
+                <p class="text-muted">Accédez à votre espace de facturation</p>
+            </div>
+
+            <div class="card border-0 shadow rounded-3 p-3 p-md-4 bg-white">
+                <div class="card-body">
+
+                    <form method="post">
+                        {% if error %}
+                            <div class="alert alert-danger border-0 shadow-sm small mb-4 d-flex align-items-center gap-2" role="alert">
+                                <i class="bi bi-exclamation-circle-fill"></i>
+                                <div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                            </div>
+                        {% endif %}
+
+                        {% if app.user %}
+                            <div class="alert alert-info border-0 small mb-4">
+                                Vous êtes connecté en tant que {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}" class="fw-bold">Déconnexion</a>
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="inputEmail" class="form-label fw-semibold">Adresse Email</label>
+                            <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" placeholder="name@example.com" required autofocus>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="inputPassword" class="form-label fw-semibold">Mot de passe</label>
+                            <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" placeholder="••••••••" required>
+                        </div>
+
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                        <div class="checkbox mb-4 form-check">
+                            <input type="checkbox" name="_remember_me" id="_remember_me" class="form-check-input">
+                            <label class="form-check-label small text-muted" for="_remember_me">Se souvenir de moi</label>
+                        </div>
+
+                        <button class="btn btn-primary w-100 py-2.5 fw-bold shadow-sm" type="submit">
+                            <i class="bi bi-box-arrow-in-right"></i> Se connecter
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <p class="text-muted small">Nouveau sur DevisPro ? <a href="{{ path('app_register') }}" class="text-primary fw-semibold text-decoration-none">Créer un compte</a></p>
+            </div>
+
         </div>
-    {% endif %}
-
-    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-    <label for="inputEmail">Email</label>
-    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
-    <label for="inputPassword">Password</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
-    <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
-
-    <button class="btn btn-lg btn-primary" type="submit">
-        Sign in
-    </button>
-</form>
+    </div>
+</div>
 {% endblock %}

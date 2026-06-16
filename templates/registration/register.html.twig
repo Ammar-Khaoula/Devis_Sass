@@ -1,19 +1,74 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Register{% endblock %}
+{% block title %}Inscription - DevisPro{% endblock %}
 
 {% block body %}
-    <h1>Register</h1>
+<div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100 py-5">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
 
-    {{ form_errors(registrationForm) }}
+            <div class="text-center mb-4">
+                <h2 class="fw-bold text-primary"><i class="bi bi-file-earmark-text-fill"></i> DevisPro</h2>
+                <p class="text-muted">Créez votre compte et commencez à facturer</p>
+            </div>
 
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
-        }) }}
-        {{ form_row(registrationForm.agreeTerms) }}
+            <div class="card border-0 shadow rounded-3 p-3 p-md-4 bg-white">
+                <div class="card-body">
 
-        <button type="submit" class="btn">Register</button>
-    {{ form_end(registrationForm) }}
+                    {{ form_errors(registrationForm) }}
+
+                    {{ form_start(registrationForm, {'attr': {'class': 'needs-validation'}}) }}
+
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.email, 'Adresse Email', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                            {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control', 'placeholder': 'name@example.com'}}) }}
+                            <div class="text-danger small mt-1">{{ form_errors(registrationForm.email) }}</div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.plainPassword, 'Mot de passe', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                            {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control', 'placeholder': '••••••••'}}) }}
+                            <div class="text-danger small mt-1">{{ form_errors(registrationForm.plainPassword) }}</div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.firstname, 'Prénom', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                            {{ form_widget(registrationForm.firstname, {'attr': {'class': 'form-control', 'placeholder': 'Jean'}}) }}
+                            <div class="text-danger small mt-1">{{ form_errors(registrationForm.firstname) }}</div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.lastname, 'Nom de famille', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                            {{ form_widget(registrationForm.lastname, {'attr': {'class': 'form-control', 'placeholder': 'Dupont'}}) }}
+                            <div class="text-danger small mt-1">{{ form_errors(registrationForm.lastname) }}</div>
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form_label(registrationForm.country, 'Pays', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                            {{ form_widget(registrationForm.country, {'attr': {'class': 'form-control', 'placeholder': 'France'}}) }}
+                            <div class="text-danger small mt-1">{{ form_errors(registrationForm.country) }}</div>
+                        </div>
+
+                        <div class="mb-4 form-check">
+                            {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
+                            {{ form_label(registrationForm.agreeTerms, "J'accepte les conditions générales d'utilisation", {'label_attr': {'class': 'form-check-label small text-muted'}}) }}
+                            <div class="text-danger small mt-1">{{ form_errors(registrationForm.agreeTerms) }}</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2.5 fw-bold shadow-sm">
+                            <i class="bi bi-person-plus-fill"></i> Créer mon compte
+                        </button>
+
+                    {{ form_end(registrationForm) }}
+
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <p class="text-muted small">Vous avez déjà un compte ? <a href="{{ path('app_login') }}" class="text-primary fw-semibold text-decoration-none">Connectez-vous</a></p>
+            </div>
+
+        </div>
+    </div>
+</div>
 {% endblock %}
