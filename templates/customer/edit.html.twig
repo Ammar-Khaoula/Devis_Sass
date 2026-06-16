@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Client - Mon SaaS{% endblock %}
+
+{% block body %}
+<div class="container mt-5" style="max-width: 800px;">
+    <div class="mb-4">
+        <a href="{{ path('app_customer_index') }}" class="btn btn-link text-muted p-0 text-decoration-none d-inline-flex align-items-center gap-1 mb-2">
+            <i class="bi bi-arrow-left"></i> Retour à la liste
+        </a>
+        <h1 class="h2 text-dark fw-bold mb-0">Modifier la fiche client</h1>
+        <p class="text-muted mb-0">Client : <span class="text-dark fw-semibold">{{ customer.fullName }}</span></p>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-3 p-2 p-md-4">
+        <div class="card-body">
+            {{ include('customer/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

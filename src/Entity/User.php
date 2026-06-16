@@ -62,6 +62,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Customer::class, orphanRemoval: true)]
+    private iterable $customers = [];
+
+    /**
+     * @return iterable<Customer>
+     */
+    public function getCustomers(): iterable
+    {
+        return $this->customers;
+    }
     /**
      * A visual identifier that represents this user.
      *

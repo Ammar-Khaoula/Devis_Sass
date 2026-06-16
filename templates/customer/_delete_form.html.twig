@@ -1,0 +1,6 @@
+<form method="post" action="{{ path('app_customer_delete', {'id': customer.id}) }}" onsubmit="return confirm('Êtes-vous absolument sûr de vouloir supprimer définitivement ce client ? Toutes ses données associées seront perdues.');" style="display: inline-block;">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ customer.id) }}">
+    <button class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" title="Supprimer">
+        <i class="bi bi-trash text-danger"></i>
+    </button>
+</form>

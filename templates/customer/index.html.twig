@@ -1,0 +1,117 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Clients - Mon SaaS{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div>
+            <h1 class="h2 text-dark fw-bold mb-1">Mes Clients</h1>
+            <p class="text-muted mb-0">Gérez le portefeuille de vos clients et leurs coordonnées.</p>
+        </div>
+        <div>
+            <a href="{{ path('app_customer_new') }}" class="btn btn-primary d-inline-flex align-items-center gap-2 px-4 py-2 shadow-sm">
+                <i class="bi bi-person-plus-fill"></i> Ajouter un client
+            </a>
+        </div>
+    </div>
+
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show shadow-sm border-0 mb-4" role="alert">
+                <div class="d-flex align-items-center gap-2">
+                    {% if label == 'success' %}
+                        <i class="bi bi-check-circle-fill fs-5"></i>
+                    {% else %}
+                        <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                    {% endif %}
+                    <div>{{ message }}</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+        <div class="card-body p-0">
+            {% if customers is empty %}
+                <div class="text-center py-5 px-4">
+                    <div class="avatar avatar-xl bg-light text-muted rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="bi bi-people fs-1"></i>
+                    </div>
+                    <h3 class="h5 fw-bold text-dark">Aucun client pour le moment</h3>
+                    <p class="text-muted mx-auto" style="max-width: 400px;">Commencez à bâtir votre base de données commerciale en ajoutant votre tout premier client.</p>
+                    <a href="{{ path('app_customer_new') }}" class="btn btn-outline-primary btn-sm">Créer mon premier client</a>
+                </div>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light text-uppercase fs-7 fw-bold text-muted border-bottom text-nowrap">
+                            <tr>
+                                <th class="ps-4 py-3">Client</th>
+                                <th class="py-3">Entreprise</th>
+                                <th class="py-3">Contact</th>
+                                <th class="py-3">Localisation</th>
+                                <th class="py-3">Date de création</th>
+                                <th class="pe-4 py-3 text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="border-0">
+                            {% for customer in customers %}
+                                <tr>
+                                    <td class="ps-4 py-3">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="rounded-circle bg-primary bg-opacity-10 text-primary fw-bold d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px;">
+                                                {{ customer.firstname|first|upper }}{{ customer.lastname|first|upper }}
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-dark">{{ customer.fullName }}</div>
+                                                <small class="text-muted d-block">{{ customer.email }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td class="py-3 text-nowrap">
+                                        {% if customer.company %}
+                                            <span class="badge bg-light text-dark border px-2.5 py-1.5 fs-7 fw-semibold">{{ customer.company }}</span>
+                                        {% else %}
+                                            <span class="text-muted fs-7 italic">Non renseignée</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="py-3 text-nowrap">
+                                        <span class="text-dark fw-medium">{{ customer.phone ?? '-' }}</span>
+                                    </td>
+
+                                    <td class="py-3 text-nowrap">
+                                        {% if customer.city %}
+                                            <div class="text-dark mb-0">{{ customer.city }}</div>
+                                            <small class="text-muted fs-7">{{ customer.country }}</small>
+                                        {% else %}
+                                            <span class="text-muted fs-7">{{ customer.country }}</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="py-3 text-nowrap fs-7 text-muted">
+                                        {{ customer.createdAt|date('d/m/Y à H:i') }}
+                                    </td>
+
+                                    <td class="pe-4 py-3 text-end text-nowrap">
+                                        <div class="d-inline-flex gap-2">
+                                            <a href="{{ path('app_customer_edit', {'id': customer.id}) }}" class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" title="Modifier">
+                                                <i class="bi bi-pencil-square text-secondary"></i>
+                                            </a>
+
+                                            {{ include('customer/_delete_form.html.twig') }}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
