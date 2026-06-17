@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau Devis - DevisPro{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <nav aria-label="breadcrumb" class="mb-2">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="{{ path('app_quote_index') }}">Devis</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Nouveau</li>
+                </ol>
+            </nav>
+            <h1 class="h3 fw-bold text-dark mb-4">Créer un nouveau devis</h1>
+
+            <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
+                {{ form_start(form) }}
+                    <div class="mb-3">
+                        {{ form_label(form.title) }}
+                        {{ form_widget(form.title) }}
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12 col-md-6 mb-3 mb-md-0">
+                            {{ form_label(form.customer) }}
+                            {{ form_widget(form.customer) }}
+                        </div>
+                        <div class="col-12 col-md-6">
+                            {{ form_label(form.status) }}
+                            {{ form_widget(form.status) }}
+                        </div>
+                    </div>
+                    <hr class="my-4">
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ path('app_quote_index') }}" class="btn btn-light border">Annuler</a>
+                        <button class="btn btn-primary"><i class="bi bi-check-lg me-1"></i> Enregistrer le devis</button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
