@@ -14,6 +14,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 #[Route('/quotes')]
 #[IsGranted('ROLE_USER')]
@@ -86,6 +88,48 @@ final class QuoteController extends AbstractController
         return $this->render('quote/show.html.twig', [
             'quote' => $quote,
         ]);
+    }
+
+
+// add PDF
+
+    #[Route('/{id}/pdf', name: 'app_quote_pdf', methods: ['GET'])]
+    public function downloadPdf(Quote $quote): Response
+    {
+        // SÉCURITÉ : On vérifie que le devis appartient bien à l'utilisateur connecté
+        if ($quote->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException('Vous n’avez pas le droit d’accéder à ce devis.');
+        }
+
+        // 1. Configurer les options de Dompdf
+        $pdfOptions = new Options();
+        $pdfOptions->set('defaultFont', 'Arial');
+        $pdfOptions->set('isRemoteEnabled', true); // Permet de charger des images ou styles externes si besoin
+
+        // 2. Initialiser Dompdf
+        $dompdf = new Dompdf($pdfOptions);
+
+        // 3. Générer le HTML à partir de notre template Twig créé à l'étape précédente
+        $html = $this->renderView('quote/pdf.html.twig', [
+            'quote' => $quote,
+        ]);
+
+        // 4. Charger le HTML dans Dompdf
+        $dompdf->loadHtml($html);
+
+        // 5. Configurer le format de la page (A4 en mode Portrait)
+        $dompdf->setPaper('A4', 'portrait');
+
+        // 6. Rendre le PDF (calcul des positions, des pages, etc.)
+        $dompdf->render();
+
+        // 7. Envoyer le PDF généré au navigateur pour téléchargement automatique
+        $fileName = sprintf('devis-%s.pdf', $quote->getNumber());
+        $dompdf->stream($fileName, [
+            "Attachment" => true // true = force le téléchargement, false = ouvre dans le navigateur
+        ]);
+
+        return new Response();
     }
 
     // 4. MODIFICATION D'UN DEVIS

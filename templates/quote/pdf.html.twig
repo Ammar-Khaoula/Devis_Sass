@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Devis {{ quote.number }}</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #2b2b2b;
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Emplacement Logo / Entête */
+        .logo-placeholder {
+            font-size: 22px;
+            font-weight: bold;
+            color: #0d6efd;
+            letter-spacing: -0.5px;
+            margin-bottom: 5px;
+        }
+
+        .company-info {
+            color: #495057;
+            margin-bottom: 25px;
+        }
+
+        /* Ligne de séparation élégante (le fameux ----------) */
+        .separator {
+            border-top: 1px solid #e0e0e0;
+            margin: 20px 0;
+        }
+
+        /* Bloc Numéro de Devis */
+        .quote-number {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin-bottom: 5px;
+        }
+        .quote-date {
+            color: #6c757d;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        /* Bloc Client */
+        .client-block {
+            margin-bottom: 25px;
+        }
+        .client-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #868e96;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .client-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #212529;
+        }
+        .client-details {
+            color: #495057;
+        }
+
+        /* Tableau des prestations */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th {
+            text-transform: uppercase;
+            font-size: 11px;
+            color: #868e96;
+            font-weight: bold;
+            text-align: left;
+            padding: 8px 0;
+        }
+        td {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: top;
+        }
+
+        /* Alignements */
+        .text-center { text-align: center; }
+        .text-end { text-align: right; }
+
+        /* Bloc des Totaux tout en bas à droite */
+        .totals-wrapper {
+            margin-top: 20px;
+            text-align: right;
+        }
+        .totals-table {
+            width: 35%;
+            margin-left: auto; /* Aligne le tableau des totaux à droite */
+        }
+        .totals-table td {
+            padding: 6px 0;
+            border: none;
+        }
+        .total-ttc-row td {
+            font-size: 16px;
+            font-weight: bold;
+            color: #0d6efd;
+            padding-top: 10px !class;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="logo-placeholder">
+        {% if quote.user.companyName %}
+            {{ quote.user.companyName }}
+        {% else %}
+            {{ quote.user.firstname }} {{ quote.user.lastname }}
+        {% endif %}
+    </div>
+    <div class="company-info">
+        {% if quote.user.address %}
+            <div>{{ quote.user.address }}</div>
+        {% endif %}
+        {% if quote.user.phone %}
+            <div>{{ quote.user.phone }}</div>
+        {% endif %}
+        <div>{{ quote.user.email }}</div>
+        {% if quote.user.siret %}
+            <div style="font-size: 11px; color: #868e96; margin-top: 4px;">SIRET : {{ quote.user.siret }}</div>
+        {% endif %}
+    </div>
+
+    <div class="separator"></div>
+
+    <div class="quote-number">DEVIS {{ quote.number }}</div>
+    <div class="quote-date">
+        Date d'émission : {{ quote.createdAt|date('d/m/Y') }}<br>
+        Objet : {{ quote.title }}
+    </div>
+
+    <div class="separator"></div>
+
+    <div class="client-block">
+        <div class="client-label">Client :</div>
+        <div class="client-name">{{ quote.customer.firstname }} {{ quote.customer.lastname }}</div>
+        <div class="client-details">
+            {% if quote.customer.company %}
+                <div><strong>{{ quote.customer.company }}</strong></div>
+            {% endif %}
+            {% if quote.customer.address is defined and quote.customer.address %}
+                <div>{{ quote.customer.address }}</div>
+            {% endif %}
+            <div>{{ quote.customer.email }}</div>
+        </div>
+    </div>
+
+    <div class="separator"></div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 55%;">Description</th>
+                <th class="text-center" style="width: 10%;">Qté</th>
+                <th class="text-end" style="width: 15%;">PU HT</th>
+                <th class="text-end" style="width: 20%;">Total HT</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in quote.items %}
+                <tr>
+                    <td>
+                        <div style="font-weight: bold; color: #212529;">{{ item.description }}</div>
+                    </td>
+                    <td class="text-center" style="color: #495057;">{{ item.quantity }}</td>
+                    <td class="text-end" style="color: #495057;">{{ item.unitPrice|number_format(2, ',', ' ') }} €</td>
+                    <td class="text-end" style="font-weight: bold; color: #212529;">{{ item.totalHt|number_format(2, ',', ' ') }} €</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totals-wrapper">
+        <table class="totals-table">
+            <tr>
+                <td style="color: #868e96;">Sous-total HT :</td>
+                <td class="text-end" style="font-weight: bold;">{{ quote.totalAmount|number_format(2, ',', ' ') }} €</td>
+            </tr>
+            <tr>
+                <td style="color: #868e96;">TVA :</td>
+                <td class="text-end">{{ quote.totalVatAmount|number_format(2, ',', ' ') }} €</td>
+            </tr>
+            <tr class="total-ttc-row">
+                <td style="border-top: 1px solid #e0e0e0; padding-top: 10px;">Total TTC :</td>
+                <td class="text-end" style="border-top: 1px solid #e0e0e0; padding-top: 10px;">{{ quote.totalTtcAmount|number_format(2, ',', ' ') }} €</td>
+            </tr>
+        </table>
+    </div>
+
+</body>
+</html>
