@@ -14,6 +14,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
 class QuoteType extends AbstractType
 {
@@ -57,6 +58,14 @@ class QuoteType extends AbstractType
                         ->setParameter('user', $user)
                         ->orderBy('c.lastname', 'ASC');
                 },
+            ])
+            ->add('items', CollectionType::class, [
+                'entry_type' => QuoteItemType::class,
+                'entry_options' => ['label' => false],
+                'allow_add' => true,     // Permet d'ajouter dynamiquement des lignes sur l'écran
+                'allow_delete' => true,  // Permet de supprimer dynamiquement des lignes sur l'écran
+                'by_reference' => false, // Force Symfony à utiliser les méthodes addItem/removeItem de Quote.php
+                'label' => false,
             ]);
     }
 

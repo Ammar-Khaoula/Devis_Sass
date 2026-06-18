@@ -92,30 +92,29 @@ final class QuoteController extends AbstractController
     #[Route('/{id}/edit', name: 'app_quote_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Quote $quote, EntityManagerInterface $entityManager): Response
     {
-        // SÉCURITÉ STRICTE : Interdiction de modifier le devis d'un autre utilisateur -> 403
-        if ($quote->getUser() !== $this->getUser()) {
-            throw $this->createAccessDeniedException('Vous n’avez pas l’autorisation de modifier ce devis.');
+        // 1. On sauvegarde l'état des lignes AVANT la soumission du formulaire
+        $originalItems = new \Doctrine\Common\Collections\ArrayCollection();
+        foreach ($quote->getItems() as $item) {
+            $originalItems->add($item);
         }
 
-        /** @var User $user */
-        $user = $this->getUser();
-
         $form = $this->createForm(QuoteType::class, $quote, [
-            'current_user' => $user,
+        'current_user' => $this->getUser(),
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // On s'assure que le client n'a pas été falsifié
-            if ($quote->getCustomer()->getUser() !== $user) {
-                throw $this->createAccessDeniedException('Ce client ne vous appartient pas.');
+            // 2. On compare : si une ligne originale n'est plus dans le formulaire, on la supprime manuellement
+            foreach ($originalItems as $item) {
+                if (false === $quote->getItems()->contains($item)) {
+                    $entityManager->remove($item);
+                }
             }
 
             $entityManager->flush();
 
-            $this->addFlash('success', sprintf('Le devis %s a été mis à jour.', $quote->getNumber()));
-
-            return $this->redirectToRoute('app_quote_index');
+            $this->addFlash('success', 'Le devis a bien été modifié.');
+            return $this->redirectToRoute('app_quote_show', ['id' => $quote->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('quote/edit.html.twig', [

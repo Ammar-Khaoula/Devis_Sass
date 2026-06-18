@@ -5,7 +5,7 @@
 {% block body %}
 <div class="container mt-4">
     <div class="row justify-content-center">
-        <div class="col-12 col-lg-8">
+        <div class="col-12 col-xl-10">
             <nav aria-label="breadcrumb" class="mb-2">
                 <ol class="breadcrumb mb-1">
                     <li class="breadcrumb-item"><a href="{{ path('app_quote_index') }}">Devis</a></li>
@@ -14,30 +14,139 @@
             </nav>
             <h1 class="h3 fw-bold text-dark mb-4">Créer un nouveau devis</h1>
 
-            <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
-                {{ form_start(form) }}
-                    <div class="mb-3">
-                        {{ form_label(form.title) }}
-                        {{ form_widget(form.title) }}
+            {{ form_start(form) }}
+            <div class="card border-0 shadow-sm rounded-3 bg-white p-4 mb-4">
+                <h5 class="fw-bold text-secondary mb-3">Informations Générales</h5>
+                <div class="mb-3">
+                    {{ form_label(form.title) }}
+                    {{ form_widget(form.title) }}
+                </div>
+                <div class="row">
+                    <div class="col-12 col-md-6 mb-3 mb-md-0">
+                        {{ form_label(form.customer) }}
+                        {{ form_widget(form.customer) }}
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-12 col-md-6 mb-3 mb-md-0">
-                            {{ form_label(form.customer) }}
-                            {{ form_widget(form.customer) }}
-                        </div>
-                        <div class="col-12 col-md-6">
-                            {{ form_label(form.status) }}
-                            {{ form_widget(form.status) }}
-                        </div>
+                    <div class="col-12 col-md-6">
+                        {{ form_label(form.status) }}
+                        {{ form_widget(form.status) }}
                     </div>
-                    <hr class="my-4">
-                    <div class="d-flex justify-content-end gap-2">
-                        <a href="{{ path('app_quote_index') }}" class="btn btn-light border">Annuler</a>
-                        <button class="btn btn-primary"><i class="bi bi-check-lg me-1"></i> Enregistrer le devis</button>
-                    </div>
-                {{ form_end(form) }}
+                </div>
             </div>
+
+            <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-secondary mb-0">Lignes du devis (Prestations)</h5>
+                    <button type="button" class="btn btn-sm btn-outline-primary add-item-btn">
+                        <i class="bi bi-plus-lg"></i> Ajouter une ligne
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 45%;">Description</th>
+                                <th style="width: 15%;">Quantité</th>
+                                <th style="width: 20%;">Prix unitaire HT</th>
+                                <th style="width: 15%;">TVA</th>
+                                <th style="width: 5%;" class="text-end"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="quote-items-container"
+                                data-prototype="{{ form_widget(form.items.vars.prototype)|e('html_attr') }}">
+                            {% for itemForm in form.items %}
+                                <tr class="quote-item-row">
+                                    <td>{{ form_widget(itemForm.description) }}</td>
+                                    <td>{{ form_widget(itemForm.quantity) }}</td>
+                                    <td>{{ form_widget(itemForm.unitPrice) }}</td>
+                                    <td>{{ form_widget(itemForm.vatRate) }}</td>
+                                    <td class="text-end">
+                                        <button type="button" class="btn btn-sm btn-outline-danger remove-item-btn"><i class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr class="my-4">
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{{ path('app_quote_index') }}" class="btn btn-light border">Annuler</a>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i> Enregistrer le devis</button>
+                </div>
+            </div>
+            {{ form_end(form) }}
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('quote-items-container');
+    const addBtn = document.querySelector('.add-item-btn');
+
+    // Compteur basé sur le nombre de lignes déjà existantes (0 au début)
+    let index = container.querySelectorAll('.quote-item-row').length;
+
+    // Si le tableau est vide au démarrage, on ajoute automatiquement une première ligne vide
+    if (index === 0) {
+        addNewRow();
+    }
+
+    addBtn.addEventListener('click', function() {
+        addNewRow();
+    });
+
+    // Écouteur global pour supprimer une ligne
+    container.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-item-btn')) {
+            const row = e.target.closest('tr');
+            // On s'assure qu'on ne supprime pas la toute dernière ligne restante
+            if (container.querySelectorAll('tr').length > 1) {
+                row.remove();
+            } else {
+                alert('Un devis doit contenir au moins une ligne de prestation.');
+            }
+        }
+    });
+
+    function addNewRow() {
+        // On récupère le prototype HTML vierge fourni par Symfony
+        const prototype = container.dataset.prototype;
+
+        // On remplace le texte "__name__" par l'index actuel (0, puis 1, puis 2...)
+        const newForm = prototype.replace(/__name__/g, index);
+        index++;
+
+        // On crée une nouvelle ligne de tableau <tr>
+        const tr = document.createElement('tr');
+        tr.classList.add('quote-item-row');
+
+        // On extrait proprement chaque champ HTML du bloc généré par Symfony pour les ranger dans nos colonnes de tableau
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = newForm;
+
+        const desc = tempDiv.querySelector('[id$=_description]').outerHTML;
+        const qty = tempDiv.querySelector('[id$=_quantity]').outerHTML;
+        const price = tempDiv.querySelector('[id$=_unitPrice]').outerHTML;
+        const vat = tempDiv.querySelector('[id$=_vatRate]').outerHTML;
+
+        // On injecte le HTML bien structuré dans les colonnes <td>
+        tr.innerHTML = `
+            <td>${desc}</td>
+            <td>${qty}</td>
+            <td><div class="input-group">${price}</div></td>
+            <td>${vat}</td>
+            <td class="text-end">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-item-btn">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
+        `;
+
+        // On ajoute la ligne au tableau
+        container.appendChild(tr);
+    }
+});
+</script>
 {% endblock %}

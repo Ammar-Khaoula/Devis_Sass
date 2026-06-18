@@ -7,6 +7,8 @@ namespace App\Entity;
 use App\Repository\QuoteRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: QuoteRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -47,6 +49,9 @@ class Quote
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     private string $totalAmount = '0.00';
 
+    #[ORM\OneToMany(targetEntity: QuoteItem::class, mappedBy: 'quote', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $items;
+
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
@@ -54,6 +59,7 @@ class Quote
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->status = self::STATUS_DRAFT;
+        $this->items = new ArrayCollection();
     }
 
     #[ORM\PrePersist]
@@ -131,7 +137,12 @@ class Quote
 
     public function getTotalAmount(): string
     {
-        return $this->totalAmount;
+        $total = 0.0;
+        foreach ($this->items as $item) {
+            $total += $item->getTotalHt();
+        }
+
+        return number_format($total, 2, '.', '');
     }
 
     public function setTotalAmount(string $totalAmount): static
@@ -149,5 +160,78 @@ class Quote
     {
         $this->createdAt = $createdAt;
         return $this;
+    }
+    /**
+     * @return Collection<int, QuoteItem>
+     */
+    public function getItems(): Collection
+    {
+        return $this->items;
+    }
+
+    public function addItem(QuoteItem $item): static
+    {
+        if (!$this->items->contains($item)) {
+            $this->items->add($item);
+            $item->setQuote($this);
+        }
+        return $this;
+    }
+
+    public function removeItem(QuoteItem $item): static
+    {
+        if ($this->items->removeElement($item)) {
+            if ($item->getQuote() === $this) {
+                $item->setQuote(null);
+            }
+        }
+        return $this;
+    }
+    /**
+     * Calcule la somme de toutes les lignes du devis (Montant total HT)
+     */
+    public function calculateTotalAmount(): void
+    {
+        $total = 0.0;
+        foreach ($this->items as $item) {
+            $total += $item->getTotalHt();
+        }
+
+        // On sauvegarde le résultat au format chaîne (ex: "300.00") pour le type DECIMAL de la base de données
+        $this->totalAmount = number_format($total, 2, '.', '');
+    }
+
+    /**
+     * Calcule le montant total de la TVA de tout le devis
+     */
+    public function getTotalVatAmount(): float
+    {
+        $totalVat = 0.0;
+        foreach ($this->items as $item) {
+            $totalVat += $item->getVatAmount();
+        }
+        return $totalVat;
+    }
+
+    /**
+     * Calcule le montant total TTC du devis
+     */
+    public function getTotalTtcAmount(): float
+    {
+        $totalTtc = 0.0;
+        foreach ($this->items as $item) {
+            $totalTtc += $item->getTotalTtc();
+        }
+        return $totalTtc;
+    }
+
+    // --- ÉVÉNEMENTS DE CYCLE DE VIE ---
+
+    // Cette fonction s'exécute automatiquement JUSTE AVANT d'enregistrer ou modifier en base de données
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function updateTotalsOnSave(): void
+    {
+        $this->calculateTotalAmount();
     }
 }
