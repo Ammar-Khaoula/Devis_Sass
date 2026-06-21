@@ -41,6 +41,7 @@ class Quote
     public const STATUS_SENT = 'sent';
     public const STATUS_ACCEPTED = 'accepted';
     public const STATUS_REJECTED = 'rejected';
+    public const STATUS_INVOICED = 'invoiced';
 
     #[ORM\Column(length: 20)]
     private string $status = self::STATUS_DRAFT;
@@ -55,11 +56,18 @@ class Quote
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+    /**
+     * @var Collection<int, Invoice>
+     */
+    #[ORM\OneToMany(targetEntity: Invoice::class, mappedBy: 'quote')]
+    private Collection $invoices;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->status = self::STATUS_DRAFT;
         $this->items = new ArrayCollection();
+        $this->invoices = new ArrayCollection();
     }
 
     #[ORM\PrePersist]
@@ -126,14 +134,14 @@ class Quote
         return $this->status;
     }
 
-    public function setStatus(string $status): static
-    {
-        if (!in_array($status, [self::STATUS_DRAFT, self::STATUS_SENT, self::STATUS_ACCEPTED, self::STATUS_REJECTED])) {
-            throw new \InvalidArgumentException("Statut de devis invalide");
-        }
-        $this->status = $status;
-        return $this;
+   public function setStatus(string $status): static
+{
+    if (!in_array($status, [self::STATUS_DRAFT, self::STATUS_SENT, self::STATUS_ACCEPTED, self::STATUS_REJECTED, self::STATUS_INVOICED])) {
+        throw new \InvalidArgumentException("Statut de devis invalide");
     }
+    $this->status = $status;
+    return $this;
+}
 
     public function getTotalAmount(): string
     {
@@ -233,5 +241,35 @@ class Quote
     public function updateTotalsOnSave(): void
     {
         $this->calculateTotalAmount();
+    }
+
+    /**
+     * @return Collection<int, Invoice>
+     */
+    public function getInvoices(): Collection
+    {
+        return $this->invoices;
+    }
+
+    public function addInvoice(Invoice $invoice): static
+    {
+        if (!$this->invoices->contains($invoice)) {
+            $this->invoices->add($invoice);
+            $invoice->setQuote($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInvoice(Invoice $invoice): static
+    {
+        if ($this->invoices->removeElement($invoice)) {
+            // set the owning side to null (unless already changed)
+            if ($invoice->getQuote() === $this) {
+                $invoice->setQuote(null);
+            }
+        }
+
+        return $this;
     }
 }

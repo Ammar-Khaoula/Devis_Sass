@@ -23,12 +23,12 @@ class CustomerRepository extends ServiceEntityRepository
      * Récupère uniquement les clients de l'utilisateur connecté (Sécurité SaaS)
      * * @return Customer[]
      */
-    public function findByCurrentUser(User $user): array
+    public function findByUser(User $user): array
     {
         return $this->createQueryBuilder('c')
             ->andWhere('c.user = :user')
             ->setParameter('user', $user)
-            ->orderBy('c.createdAt', 'DESC')
+            ->orderBy('c.id', 'DESC')
             ->getQuery()
             ->getResult();
     }

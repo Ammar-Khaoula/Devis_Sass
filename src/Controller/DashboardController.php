@@ -18,7 +18,7 @@ final class DashboardController extends AbstractController
         $user = $this->getUser();
 
         // On récupère uniquement ses clients
-        $myCustomers = $customerRepository->findByCurrentUser($user);
+        $myCustomers = $customerRepository->findByUser($user);
 
         return $this->render('dashboard/index.html.twig', [
             // On passe le nombre total de ses clients au template Twig

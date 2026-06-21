@@ -7,7 +7,7 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
         <div>
             <h1 class="h2 text-dark fw-bold mb-1">Mes Clients</h1>
-            <p class="text-muted mb-0">Gérez le portefeuille de vos clients et leurs coordonnées.</p>
+            <p class="text-muted mb-0">Gerez le portefeuille de vos clients et leurs coordonnees.</p>
         </div>
         <div>
             <a href="{{ path('app_customer_new') }}" class="btn btn-primary d-inline-flex align-items-center gap-2 px-4 py-2 shadow-sm">
@@ -40,8 +40,8 @@
                         <i class="bi bi-people fs-1"></i>
                     </div>
                     <h3 class="h5 fw-bold text-dark">Aucun client pour le moment</h3>
-                    <p class="text-muted mx-auto" style="max-width: 400px;">Commencez à bâtir votre base de données commerciale en ajoutant votre tout premier client.</p>
-                    <a href="{{ path('app_customer_new') }}" class="btn btn-outline-primary btn-sm">Créer mon premier client</a>
+                    <p class="text-muted mx-auto" style="max-width: 400px;">Commencez a batir votre base de donnees commerciale en ajoutant votre tout premier client.</p>
+                    <a href="{{ path('app_customer_new') }}" class="btn btn-outline-primary btn-sm">Creer mon premier client</a>
                 </div>
             {% else %}
                 <div class="table-responsive">
@@ -52,7 +52,7 @@
                                 <th class="py-3">Entreprise</th>
                                 <th class="py-3">Contact</th>
                                 <th class="py-3">Localisation</th>
-                                <th class="py-3">Date de création</th>
+                                <th class="py-3">Date de creation</th>
                                 <th class="pe-4 py-3 text-end">Actions</th>
                             </tr>
                         </thead>
@@ -65,7 +65,7 @@
                                                 {{ customer.firstname|first|upper }}{{ customer.lastname|first|upper }}
                                             </div>
                                             <div>
-                                                <div class="fw-bold text-dark">{{ customer.fullName }}</div>
+                                                <div class="fw-bold text-dark">{{ customer.firstname }} {{ customer.lastname }}</div>
                                                 <small class="text-muted d-block">{{ customer.email }}</small>
                                             </div>
                                         </div>
@@ -75,7 +75,7 @@
                                         {% if customer.company %}
                                             <span class="badge bg-light text-dark border px-2.5 py-1.5 fs-7 fw-semibold">{{ customer.company }}</span>
                                         {% else %}
-                                            <span class="text-muted fs-7 italic">Non renseignée</span>
+                                            <span class="text-muted fs-7 italic">Non renseignee</span>
                                         {% endif %}
                                     </td>
 
@@ -93,7 +93,7 @@
                                     </td>
 
                                     <td class="py-3 text-nowrap fs-7 text-muted">
-                                        {{ customer.createdAt|date('d/m/Y à H:i') }}
+                                        {{ customer.createdAt is defined and customer.createdAt ? customer.createdAt|date('d/m/Y a H:i') : '—' }}
                                     </td>
 
                                     <td class="pe-4 py-3 text-end text-nowrap">
@@ -102,7 +102,12 @@
                                                 <i class="bi bi-pencil-square text-secondary"></i>
                                             </a>
 
-                                            {{ include('customer/_delete_form.html.twig') }}
+                                            <form action="{{ path('app_customer_delete', {'id': customer.id}) }}" method="POST" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer définitivement ce client ?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ customer.id) }}">
+                                                <button type="submit" class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" title="Supprimer">
+                                                    <i class="bi bi-trash text-danger"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>

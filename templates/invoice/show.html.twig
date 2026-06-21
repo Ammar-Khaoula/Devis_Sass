@@ -1,0 +1,113 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Facture {{ invoice.number }} - DevisPro{% endblock %}
+
+{% block body %}
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="{{ path('app_invoice_index') }}" class="btn btn-light border">
+            <i class="bi bi-arrow-left"></i> Retour aux factures
+        </a>
+        <button class="btn btn-primary" onclick="window.print()">
+            <i class="bi bi-printer"></i> Imprimer / PDF
+        </button>
+    </div>
+
+    <div class="card border-0 shadow-sm p-5 bg-white rounded-3">
+        <div class="row mb-4">
+            <div class="col-6">
+                <h2 class="fw-bold text-primary mb-1">DevisPro</h2>
+                <p class="text-muted small">Facture officielle</p>
+            </div>
+            <div class="col-6 text-end">
+                <h4 class="fw-bold text-dark">FACTURE</h4>
+                <span class="text-muted small">N° {{ invoice.number }}</span>
+            </div>
+        </div>
+
+        <hr class="my-4">
+
+        <div class="row mb-5">
+            <div class="col-6">
+                <p class="text-secondary small fw-bold text-uppercase mb-1">Émise par :</p>
+                <strong>{{ invoice.user.companyName ?? invoice.user.userIdentifier }}</strong><br>
+                <span class="text-muted small">{{ invoice.user.email }}</span>
+            </div>
+            <div class="col-6 text-end">
+                <p class="text-secondary small fw-bold text-uppercase mb-1">Facturé à :</p>
+                <strong>
+                    {% if invoice.customer.company is defined and invoice.customer.company %}
+                        {{ invoice.customer.company }}
+                    {% elseif invoice.customer.companyName is defined and invoice.customer.companyName %}
+                        {{ invoice.customer.companyName }}
+                    {% else %}
+                        {{ invoice.customer.firstName ?? '' }} {{ invoice.customer.lastName ?? 'Client' }}
+                    {% endif %}
+                </strong><br>
+                <span class="text-muted small">{{ invoice.customer.email ?? '' }}</span>
+            </div>
+        </div>
+
+        <div class="row mb-4 bg-light p-3 rounded">
+            <div class="col-6 col-md-3">
+                <span class="text-muted small d-block">Date d'émission :</span>
+                <strong>{{ invoice.createdAt|date('d/m/Y') }}</strong>
+            </div>
+            <div class="col-6 col-md-3">
+                <span class="text-muted small d-block">Date d'échéance :</span>
+                <strong>{{ invoice.dueDate|date('d/m/Y') }}</strong>
+            </div>
+            <div class="col-6 col-md-3 mt-2 mt-md-0">
+                <span class="text-muted small d-block">Statut :</span>
+                {% if invoice.status == 'unpaid' %}
+                    <span class="badge bg-warning text-dark">En attente de paiement</span>
+                {% else %}
+                    <span class="badge bg-success">Payée</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Désignation de la prestation</th>
+                        <th class="text-center" style="width: 10%;">Qté</th>
+                        <th class="text-end" style="width: 15%;">Prix Unitaire HT</th>
+                        <th class="text-center" style="width: 10%;">TVA</th>
+                        <th class="text-end" style="width: 15%;">Total HT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in invoice.invoiceItems %}
+                        <tr>
+                            <td>{{ item.description }}</td>
+                            <td class="text-center">{{ item.quantity }}</td>
+                            <td class="text-end">{{ item.unitPrice }} €</td>
+                            <td class="text-center">{{ item.vatRate }}%</td>
+                            <td class="text-end fw-bold">{{ item.totalHt }} €</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row justify-content-end mt-4">
+            <div class="col-12 col-md-4">
+                <div class="d-flex justify-content-between p-2 border-bottom">
+                    <span class="text-muted">Total HT :</span>
+                    <span>{{ invoice.totalHtAmount }} €</span>
+                </div>
+                <div class="d-flex justify-content-between p-2 border-bottom">
+                    <span class="text-muted">Total TVA :</span>
+                    <span>{{ invoice.totalVatAmount }} €</span>
+                </div>
+                <div class="d-flex justify-content-between p-2 bg-light rounded mt-2">
+                    <span class="fw-bold text-dark">Montant TTC :</span>
+                    <span class="fw-bold text-primary fs-5">{{ invoice.totalTtcAmount }} €</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

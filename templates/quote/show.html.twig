@@ -21,6 +21,18 @@
                 <a href="{{ path('app_quote_pdf', {'id': quote.id}) }}" class="btn btn-sm btn-outline-danger me-2">
                     <i class="bi bi-file-earmark-pdf"></i> Télécharger PDF
                 </a>
+                {% if quote.status == 'accepted' %}
+            {# Formulaire sécurisé pour la génération de facture en 1-Clic #}
+            <form action="{{ path('app_invoice_create_from_quote', {'id': quote.id}) }}" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-success" onclick="return confirm('Voulez-vous vraiment générer la facture officielle pour ce devis ? Cette action figera les données compta.');">
+                    <i class="fas fa-file-invoice"></i> Transformer en Facture (1-Clic)
+                </button>
+            </form>
+            {% elseif quote.status == 'invoiced' %}
+                <span class="badge bg-info text-white p-2">
+                    <i class="fas fa-check-circle"></i> Ce devis a déjà été facturé
+                </span>
+            {% endif %}
             </div>
 
             <div class="card border-0 shadow-sm rounded-3 bg-white p-4 mb-4">

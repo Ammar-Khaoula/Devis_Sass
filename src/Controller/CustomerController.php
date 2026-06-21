@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/dashboard/customers')]
+#[Route('/customer')]
 #[IsGranted('ROLE_USER')]
 class CustomerController extends AbstractController
 {
@@ -29,8 +29,7 @@ class CustomerController extends AbstractController
         $user = $this->getUser();
 
         return $this->render('customer/index.html.twig', [
-            // Utilisation de notre méthode personnalisée et sécurisée du Repository
-            'customers' => $customerRepository->findByCurrentUser($user),
+            'customers' => $customerRepository->findByUser($user),
         ]);
     }
 
@@ -44,7 +43,6 @@ class CustomerController extends AbstractController
         $user = $this->getUser();
 
         $customer = new Customer();
-        // Sécurité critique : on lie directement le client à l'utilisateur connecté
         $customer->setUser($user);
 
         $form = $this->createForm(CustomerType::class, $customer);
@@ -54,7 +52,7 @@ class CustomerController extends AbstractController
             $entityManager->persist($customer);
             $entityManager->flush();
 
-            $this->addFlash('success', sprintf('Le client %s a été créé avec succès.', $customer->getFullName()));
+            $this->addFlash('success', sprintf('Le client %s %s a été créé avec succès.', $customer->getFirstname(), $customer->getLastname()));
 
             return $this->redirectToRoute('app_customer_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -66,12 +64,11 @@ class CustomerController extends AbstractController
     }
 
     /**
-     * Modification d'un client (avec sécurité anti-intrusion)
+     * Modification d'un client
      */
     #[Route('/{id}/edit', name: 'app_customer_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Customer $customer, EntityManagerInterface $entityManager): Response
     {
-        // SÉCURITÉ SAAS : Si le client n'appartient pas à l'utilisateur connecté -> Access Denied 403
         if ($customer->getUser() !== $this->getUser()) {
             throw $this->createAccessDeniedException("Vous n'avez pas l'autorisation de modifier ce client.");
         }
@@ -82,7 +79,7 @@ class CustomerController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            $this->addFlash('success', sprintf('Le client %s a été mis à jour.', $customer->getFullName()));
+            $this->addFlash('success', sprintf('Le client %s %s a été mis à jour.', $customer->getFirstname(), $customer->getLastname()));
 
             return $this->redirectToRoute('app_customer_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -94,22 +91,23 @@ class CustomerController extends AbstractController
     }
 
     /**
-     * Suppression sécurisée d'un client (Protection CSRF incluse)
+     * Suppression sécurisée d'un client
      */
     #[Route('/{id}/delete', name: 'app_customer_delete', methods: ['POST'])]
     public function delete(Request $request, Customer $customer, EntityManagerInterface $entityManager): Response
     {
-        // SÉCURITÉ SAAS : Vérification de propriété stricte
         if ($customer->getUser() !== $this->getUser()) {
             throw $this->createAccessDeniedException("Vous n'avez pas l'autorisation de supprimer ce client.");
         }
 
-        // Sécurité faille CSRF : on valide le token envoyé par le formulaire Twig
-        if ($this->isCsrfTokenValid('delete' . $customer->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($customer);
-            $entityManager->flush();
-
-            $this->addFlash('danger', 'Le client a été supprimé définitivement.');
+        if ($this->isCsrfTokenValid('delete' . $customer->getId(), $request->request->get('_token'))) {
+            try {
+                $entityManager->remove($customer);
+                $entityManager->flush();
+                $this->addFlash('danger', 'Le client a été supprimé définitivement.');
+            } catch (\Exception $e) {
+                $this->addFlash('warning', 'Impossible de supprimer ce client car des devis ou factures y sont rattachés.');
+            }
         }
 
         return $this->redirectToRoute('app_customer_index', [], Response::HTTP_SEE_OTHER);

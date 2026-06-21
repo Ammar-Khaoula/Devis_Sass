@@ -30,7 +30,7 @@ final class QuoteController extends AbstractController
 
         return $this->render('quote/index.html.twig', [
             // SÉCURITÉ : On n'affiche QUE les devis de cet utilisateur
-            'quotes' => $quoteRepository->findByCurrentUser($user),
+            'quotes' => $quoteRepository->findByUser($user),
         ]);
     }
 

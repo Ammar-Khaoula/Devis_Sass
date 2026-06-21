@@ -24,7 +24,7 @@ class QuoteRepository extends ServiceEntityRepository
      * (Garantit l'isolation stricte Multi-Tenant)
      * * @return Quote[]
      */
-    public function findByCurrentUser(User $user): array
+    public function findByUser(User $user): array
     {
         return $this->createQueryBuilder('q')
             ->andWhere('q.user = :user')

@@ -65,6 +65,10 @@
                                 <span class="badge bg-success-subtle text-success border border-success rounded-pill px-2.5 py-1 text-capitalize">Accepté</span>
                             {% elseif quote.status == 'rejected' %}
                                 <span class="badge bg-danger-subtle text-danger border border-danger rounded-pill px-2.5 py-1 text-capitalize">Refusé</span>
+                            {% elseif quote.status == 'invoiced' %}
+                                <span class="badge bg-info text-white">Facturé</span> {# 👈 Ajoute cette ligne ! #}
+                            {% else %}
+                                <span class="badge bg-dark">{{ quote.status }}</span> {# Sécurité si un statut inconnu se présente #}
                             {% endif %}
                         </td>
                         <td class="text-muted fs-7">{{ quote.createdAt|date('d/m/Y') }}</td>
